@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "946054048781",
+    "project_id": "di-pan",
+    "storage_bucket": "di-pan.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:946054048781:android:35e75dff9b29a1f2dd7944",
+        "android_client_info": {
+          "package_name": "com.sen.di_pan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz3fjqn9oIjmdbLg5X2c5ap9-aB4qRsNQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
