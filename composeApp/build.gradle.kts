@@ -1,5 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -7,7 +6,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.composeHotReload)
+    // alias(libs.plugins.composeHotReload)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.google.services)
 }
@@ -40,9 +39,13 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
-            implementation("com.google.firebase:firebase-common-ktx:21.0.0")
-            implementation("com.google.firebase:firebase-database-ktx:21.0.0")
-            implementation("com.google.firebase:firebase-auth-ktx:23.0.0")
+            implementation(libs.androidx.camera.core)
+            implementation(libs.androidx.camera.camera2)
+            implementation(libs.androidx.camera.lifecycle)
+            implementation(libs.androidx.camera.view)
+            implementation(libs.google.mlkit.barcode.scanning)
+            implementation(libs.ktor.client.okhttp)
+            implementation(libs.play.services.location)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -50,13 +53,18 @@ kotlin {
             implementation(libs.compose.material3)
             implementation(libs.compose.ui)
             implementation(libs.compose.components.resources)
-            implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.firebase.common)
             implementation(libs.firebase.database)
             implementation(libs.firebase.auth)
             implementation(libs.kotlinx.datetime)
+            // implementation(libs.kamel) // Removing Kamel as it's causing issues
+            implementation(compose.materialIconsExtended)
+            implementation(libs.ktor.client.core)
+            implementation(libs.kotlin.reflect)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -64,6 +72,22 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation(libs.compose.uiToolingPreview)
+            implementation(libs.ktor.client.okhttp)
+        }
+        
+        val iosMain by creating {
+            dependsOn(commonMain.get())
+            dependencies {
+                implementation(libs.ktor.client.darwin)
+            }
+        }
+        
+        getByName("iosArm64Main") {
+            dependsOn(iosMain)
+        }
+        getByName("iosSimulatorArm64Main") {
+            dependsOn(iosMain)
         }
     }
 }
@@ -97,8 +121,8 @@ android {
 
 dependencies {
     debugImplementation(libs.compose.uiTooling)
-    implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
-    implementation("com.google.firebase:firebase-analytics")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
 }
 
 compose.desktop {
