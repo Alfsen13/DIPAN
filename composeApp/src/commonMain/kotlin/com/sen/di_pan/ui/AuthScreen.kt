@@ -1,13 +1,16 @@
 package com.sen.di_pan.ui
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -26,7 +30,10 @@ import com.sen.di_pan.data.FirebaseService
 import com.sen.di_pan.model.User
 import com.sen.di_pan.model.UserType
 import com.sen.di_pan.util.PreferenceManager
+import dipan.composeapp.generated.resources.Res
+import dipan.composeapp.generated.resources.ic_app_logo
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun AuthScreen(
@@ -52,7 +59,6 @@ fun AuthScreen(
     var isLoading by remember { mutableStateOf(false) }
     var rememberMe by remember { mutableStateOf(savedEmail.isNotEmpty()) }
 
-    // Ambil daftar devisi operator secara real-time
     val operatorDevisiList by firebaseService.getOperatorDevisiList().collectAsState(initial = emptyList())
 
     Box(
@@ -61,69 +67,94 @@ fun AuthScreen(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                        MaterialTheme.colorScheme.surface
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.secondary
                     )
                 )
             )
     ) {
+        // Dekorasi Lingkaran Latar Belakang
+        Box(
+            modifier = Modifier
+                .size(300.dp)
+                .offset(x = (-100).dp, y = (-100).dp)
+                .background(Color.White.copy(alpha = 0.1f), CircleShape)
+        )
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp)
                 .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Logo / Title Section
+            Spacer(modifier = Modifier.height(60.dp))
+            
+            // Logo Section
             Surface(
-                modifier = Modifier.size(80.dp),
+                modifier = Modifier.size(120.dp),
                 shape = RoundedCornerShape(20.dp),
-                color = MaterialTheme.colorScheme.primary,
+                color = Color.White,
                 tonalElevation = 8.dp
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Default.Dashboard,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(40.dp)
+                    Image(
+                        painter = painterResource(Res.drawable.ic_app_logo),
+                        contentDescription = "Logo DIPAN",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp),
+                        contentScale = ContentScale.Fit
                     )
                 }
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             
             Text(
                 text = "DIPAN",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.primary,
-                letterSpacing = 4.sp
+                style = MaterialTheme.typography.displaySmall,
+                fontWeight = FontWeight.Black,
+                color = Color.White,
+                letterSpacing = 2.sp
             )
             Text(
-                text = if (isLogin) "Digital Presence & Activity Network" else "Buat akun baru untuk mulai",
+                text = "Digital Presence & Activity Network",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color.White.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Form Section
+            // Form Card
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(28.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 40.dp),
+                shape = RoundedCornerShape(32.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
             ) {
-                Column(modifier = Modifier.padding(24.dp)) {
+                Column(modifier = Modifier.padding(28.dp)) {
+                    Text(
+                        text = if (isLogin) "Selamat Datang" else "Buat Akun",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = if (isLogin) "Silakan login untuk melanjutkan" else "Lengkapi data diri Anda",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(bottom = 24.dp)
+                    )
+
                     AnimatedVisibility(visible = !isLogin) {
                         Column {
                             CustomTextField(value = name, onValueChange = { name = it }, label = "Nama Lengkap", icon = Icons.Default.Person)
-                            Spacer(modifier = Modifier.height(12.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
                             
-                            // Role Selector
                             Text("Daftar Sebagai:", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
@@ -139,70 +170,65 @@ fun AuthScreen(
                             when(userType) {
                                 UserType.PEGAWAI -> {
                                     CustomTextField(value = nip, onValueChange = { nip = it }, label = "NIP", icon = Icons.Default.Badge)
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                    DevisiDropdown(
-                                        value = devisi, 
-                                        onValueChange = { devisi = it }, 
-                                        options = operatorDevisiList,
-                                        label = "Pilih Devisi"
-                                    )
-                                    Spacer(modifier = Modifier.height(12.dp))
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    DevisiDropdown(value = devisi, onValueChange = { devisi = it }, options = operatorDevisiList, label = "Pilih Devisi")
+                                    Spacer(modifier = Modifier.height(16.dp))
                                     CustomTextField(value = bidangKeahlian, onValueChange = { bidangKeahlian = it }, label = "Bidang Keahlian", icon = Icons.Default.Star)
                                 }
                                 UserType.PESERTA_PLK -> {
                                     CustomTextField(value = asalSekolah, onValueChange = { asalSekolah = it }, label = "Sekolah / Instansi", icon = Icons.Default.School)
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                    DevisiDropdown(
-                                        value = devisi, 
-                                        onValueChange = { devisi = it }, 
-                                        options = operatorDevisiList,
-                                        label = "Pilih Pembagian Devisi"
-                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    DevisiDropdown(value = devisi, onValueChange = { devisi = it }, options = operatorDevisiList, label = "Pilih Pembagian Devisi")
                                 }
                                 UserType.OPERATOR -> {
                                     CustomTextField(value = devisi, onValueChange = { devisi = it }, label = "Unit Kerja / Devisi Baru", icon = Icons.Default.AdminPanelSettings)
-                                    if (operatorDevisiList.isNotEmpty()) {
-                                        Text("Devisi yang sudah ada: ${operatorDevisiList.joinToString()}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-                                    }
                                 }
                             }
-                            Spacer(modifier = Modifier.height(12.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
 
                     CustomTextField(value = email, onValueChange = { email = it }, label = "Email", icon = Icons.Default.Email)
-                    Spacer(modifier = Modifier.height(12.dp))
-                    CustomTextField(
-                        value = password, 
-                        onValueChange = { password = it }, 
-                        label = "Password", 
-                        icon = Icons.Default.Lock,
-                        isPassword = true
-                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    CustomTextField(value = password, onValueChange = { password = it }, label = "Password", icon = Icons.Default.Lock, isPassword = true)
 
                     if (isLogin) {
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Checkbox(checked = rememberMe, onCheckedChange = { rememberMe = it })
+                            Checkbox(
+                                checked = rememberMe, 
+                                onCheckedChange = { rememberMe = it },
+                                colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.secondary)
+                            )
                             Text("Ingat Saya", style = MaterialTheme.typography.bodyMedium)
                         }
                     }
 
                     if (error != null) {
-                        Text(
-                            text = error!!,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(top = 8.dp)
-                        )
+                        Surface(
+                            color = MaterialTheme.colorScheme.errorContainer,
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = error!!,
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(8.dp),
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(32.dp))
 
                     if (isLoading) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                            color = MaterialTheme.colorScheme.secondary
+                        )
                     } else {
                         Button(
                             onClick = {
@@ -258,24 +284,37 @@ fun AuthScreen(
                                     }
                                 }
                             },
-                            modifier = Modifier.fillMaxWidth().height(56.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
                             shape = RoundedCornerShape(16.dp),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                         ) {
-                            Text(if (isLogin) "Masuk" else "Daftar", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(
+                                if (isLogin) "MASUK" else "DAFTAR SEKARANG", 
+                                fontWeight = FontWeight.ExtraBold, 
+                                fontSize = 16.sp,
+                                letterSpacing = 1.2.sp
+                            )
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    TextButton(
+                        onClick = { isLogin = !isLogin },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = if (isLogin) "Belum punya akun? Daftar" else "Sudah punya akun? Login",
+                            color = MaterialTheme.colorScheme.secondary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            TextButton(onClick = { isLogin = !isLogin }) {
-                Text(
-                    text = if (isLogin) "Belum punya akun? Daftar" else "Sudah punya akun? Login",
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
-                )
             }
         }
     }
@@ -366,13 +405,13 @@ fun RoleChip(selected: Boolean, label: String, onClick: () -> Unit) {
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
             .clickable { onClick() },
-        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+        color = if (selected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.surfaceVariant,
         border = if (selected) null else androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray)
     ) {
         Text(
             text = label,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+            style = MaterialTheme.typography.labelLarge,
             color = if (selected) Color.White else MaterialTheme.colorScheme.onSurface,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
         )

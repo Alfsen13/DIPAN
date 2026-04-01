@@ -6,15 +6,35 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.sen.di_pan.data.FirebaseService
 import com.sen.di_pan.model.User
 import com.sen.di_pan.model.UserType
 import com.sen.di_pan.ui.AuthScreen
 import com.sen.di_pan.ui.PresenceBoard
 import com.sen.di_pan.ui.OperatorPanel
+import com.sen.di_pan.ui.SplashScreen
 import com.sen.di_pan.util.PreferenceManager
 import com.sen.di_pan.util.createPreferenceManager
 import kotlinx.coroutines.launch
+
+// Definisi Warna Kustom (Biru & Hijau Modern)
+val DeepBlue = Color(0xFF1A237E)
+val LightBlue = Color(0xFFE8EAF6)
+val EmeraldGreen = Color(0xFF2E7D32)
+val SoftGreen = Color(0xFFE8F5E9)
+
+private val AppColorScheme = lightColorScheme(
+    primary = DeepBlue,
+    onPrimary = Color.White,
+    primaryContainer = LightBlue,
+    secondary = EmeraldGreen,
+    onSecondary = Color.White,
+    secondaryContainer = SoftGreen,
+    background = Color(0xFFF8F9FA),
+    surface = Color.White,
+    error = Color(0xFFB00020)
+)
 
 @Composable
 fun App(context: Any? = null) {
@@ -22,9 +42,9 @@ fun App(context: Any? = null) {
     val scope = rememberCoroutineScope()
     val preferenceManager = remember { createPreferenceManager(context) }
 
+    var showSplash by remember { mutableStateOf(true) }
     var currentAuthUser by remember { mutableStateOf(firebaseService.auth.currentUser) }
     
-    // Live update untuk currentUser data
     val currentUser by if (currentAuthUser != null) {
         firebaseService.getUserFlow(currentAuthUser!!.uid).collectAsState(initial = null)
     } else {
@@ -34,16 +54,19 @@ fun App(context: Any? = null) {
     var isCheckingAuth by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        // Cek sesi login awal
         isCheckingAuth = false
     }
 
-    MaterialTheme {
+    MaterialTheme(
+        colorScheme = AppColorScheme
+    ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            if (isCheckingAuth) {
+            if (showSplash) {
+                SplashScreen(onTimeout = { showSplash = false })
+            } else if (isCheckingAuth) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
